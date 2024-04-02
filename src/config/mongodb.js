@@ -20,7 +20,6 @@ export const CONNECT_DB = async () => {
 }
 
 export const CLOSE_DB = async () => {
-  console.log('Code chay vao close')
   await mongoClientInstance.close()
 }
 
