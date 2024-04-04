@@ -14,11 +14,10 @@ const CreateNew = async (req, res, next) => {
       .required()
   })
   try {
-    console.log(req.body)
     //AbortEarly là kết thúc báo lỗi ở lỗi đầu mặc định true
     await correctCondition.validateAsync( req.body )
-    // next()
-    res.status(StatusCodes.CREATED).json({ message: 'Post from Validation: API create new board.' })
+    //validate data xong thì đi tiếp sang controller
+    next()
   } catch (error) {
     console.log(error)
     res.status(StatusCodes.UNPROCESSABLE_ENTITY).json({ error: new Error(error).message })
