@@ -1,20 +1,17 @@
 import { StatusCodes } from 'http-status-codes'
+import { boardService } from '~/services/boardService'
 // import ApiError from '~/utils/apiError'
 
 const CreateNew = async (req, res, next) => {
   try {
-    // console.log('req.body: ', req.body)
-    // console.log('req.query: ', req.query)
-    // console.log('req.params: ', req.params)
-    // console.log('req.files: ', req.files)
-    // console.log('req.cookies: ', req.cookies)
-    // console.log('req.jwtDecoded: ', req.jwtDecoded)
+    //req có req.body/quary/params/files/cookie/dwtDecoded....
 
     // throw new ApiError(StatusCodes.CONFLICT, 'Test error')
-    //Điều hướng data sang tầng service
+    //Điều hướng data sang tầng service để XỬ LÝ LOGIC only sau đó hứng solveddata
+    const createdBoard = await boardService.CreateNew(req.body)
 
     //Có kết quả thì trả về client
-    res.status(StatusCodes.CREATED).json({ message: 'Post from Controller: API create new board.' })
+    res.status(StatusCodes.CREATED).json(createdBoard)
   } catch (error) { next(error) }
 }
 
