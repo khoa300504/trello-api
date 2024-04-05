@@ -11,7 +11,7 @@ const CreateNew = async (req, res, next) => {
       'string.max': 'Title must be lower than 30 char (Khoa Customize)',
       'string.trim': 'Title must not has whitespace (Khoa Customize)'
     }),
-    description: Joi.string().min(3).max(560).trim().strict()
+    description: Joi.string().min(3).max(255).trim().strict()
       .required()
   })
   try {
