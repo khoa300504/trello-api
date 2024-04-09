@@ -1,6 +1,7 @@
 import Joi from 'joi'
 import { StatusCodes } from 'http-status-codes'
 import ApiError from '~/utils/ApiError'
+import { BOARD_TYPES } from '~/utils/constants'
 
 const CreateNew = async (req, res, next) => {
   const correctCondition = Joi.object({
@@ -11,8 +12,8 @@ const CreateNew = async (req, res, next) => {
       'string.max': 'Title must be lower than 30 char (Khoa Customize)',
       'string.trim': 'Title must not has whitespace (Khoa Customize)'
     }),
-    description: Joi.string().min(3).max(255).trim().strict()
-      .required()
+    description: Joi.string().min(3).max(255).trim().strict().required(),
+    type: Joi.string().valid(BOARD_TYPES.PUBLIC, BOARD_TYPES.PRIVATE).required()
   })
   try {
     //AbortEarly là kết thúc báo lỗi ở lỗi đầu mặc định true
