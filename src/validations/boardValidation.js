@@ -25,6 +25,24 @@ const CreateNew = async (req, res, next) => {
   }
 }
 
+const update = async (req, res, next) => {
+  const correctCondition = Joi.object({
+    title: Joi.string().min(3).max(30).trim().strict(),
+    description: Joi.string().min(3).max(255).trim().strict(),
+    type: Joi.string().valid(BOARD_TYPES.PUBLIC, BOARD_TYPES.PRIVATE)
+  })
+  try {
+    await correctCondition.validateAsync( req.body, {
+      //cho phép đẩy lên các field chưa định nghĩa khác title, des, type
+      abortEarly: false, allowUnknown: true
+    } )
+    next()
+  } catch (error) {
+    next(new ApiError(StatusCodes.UNPROCESSABLE_ENTITY, new Error(error).message))
+  }
+}
+
 export const boardValidation = {
-  CreateNew
+  CreateNew,
+  update
 }
