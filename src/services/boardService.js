@@ -4,6 +4,7 @@ import { slugify } from '~/utils/formartters'
 import { boardModel } from '~/models/boardModel'
 import { StatusCodes } from 'http-status-codes'
 import { cloneDeep } from 'lodash'
+import { date } from 'joi'
 
 const CreateNew = async (reqBody) => {
   try {
@@ -41,7 +42,19 @@ const getDetails = async (boardId) => {
   } catch (error) { throw error }
 }
 
+const update = async (boardId, reqBody) => {
+  try {
+    const updateData = {
+      ...reqBody,
+      updateAt: Date.now()
+    }
+    const updatedBoard = await boardModel.update(boardId, updateData)
+    return updatedBoard
+  } catch (error) { throw error }
+}
+
 export const boardService = {
   CreateNew,
-  getDetails
+  getDetails,
+  update
 }
