@@ -3,10 +3,8 @@ import { env } from '~/config/environment'
 
 let trelloDatabaseInstance = null
 
-URI = 'mongodb+srv://khoa300504:KSNIijaiPR9QKnUf@trello-api.rsgk0.mongodb.net/?retryWrites=true&w=majority&appName=Trello-Api'
-
 // 1 đối tượng client connect tới mongodb
-const mongoClientInstance = new MongoClient(URI, {
+const mongoClientInstance = new MongoClient(env.MONGODB_URI, {
   // chỉ đinh 1 stable api version của mongodb
   serverApi: {
     version: ServerApiVersion.v1,
