@@ -40,7 +40,6 @@ const deleteItem = async (req, res, next) => {
   })
   try {
     await correctCondition.validateAsync( req.params )
-    console.log('first')
     next()
   } catch (error) {
     next(new ApiError(StatusCodes.UNPROCESSABLE_ENTITY, new Error(error).message))
