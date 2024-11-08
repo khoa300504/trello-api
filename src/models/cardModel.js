@@ -53,7 +53,7 @@ const update = async (cardId, updatedData) => {
     const result = await GET_DB().collection(CARD_COLLECTION_NAME).findOneAndUpdate(
       { _id: new ObjectId(cardId) },
       { $set: updatedData },
-      { ReturnDocument: 'after' }
+      { returnDocument: 'after' }
     )
     return result
   } catch (error) {throw new Error(error)}

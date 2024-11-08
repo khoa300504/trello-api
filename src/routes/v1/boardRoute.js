@@ -1,19 +1,20 @@
 import express from 'express'
 import { boardValidation } from '~/validations/boardValidation'
 import { boardController } from '~/controllers/boardController'
+import { authMiddleWare } from '~/middlewares/authMiddleware'
 
 const Router = express.Router()
 
 Router.route('/')
-  .post(boardValidation.CreateNew, boardController.CreateNew)
+  .post(authMiddleWare.isAuthorized, boardValidation.CreateNew, boardController.CreateNew)
 
 Router.route('/:id')
   //Get Detail
-  .get(boardController.getDetails)
+  .get(authMiddleWare.isAuthorized, boardController.getDetails)
   //Update
-  .put(boardValidation.update, boardController.update)
+  .put(authMiddleWare.isAuthorized, boardValidation.update, boardController.update)
 
 Router.route('/supports/moving_card')
-  .put(boardValidation.moveCardToDifferentColumn, boardController.moveCardToDifferentColumn)
+  .put(authMiddleWare.isAuthorized, boardValidation.moveCardToDifferentColumn, boardController.moveCardToDifferentColumn)
 
 export const boardRoutes = Router

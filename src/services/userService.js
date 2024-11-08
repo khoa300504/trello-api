@@ -8,6 +8,7 @@ import { WEBSITE_DOMAIN } from '~/utils/constants'
 import { BrevoProvider } from '~/providers/BrevoProvider'
 import { JwtProvider } from '~/providers/JwtProvider'
 import { env } from '~/config/environment'
+import { CloundinaryProvider } from '~/providers/CloundinaryProvider'
 
 const createNew = async (reqBody) => {
   try {
@@ -74,14 +75,60 @@ const login = async (reqBody) => {
       email: existUser.email
     }
     const accessToken = await JwtProvider.generateToken(userInfo, env.ACCESS_TOKEN_SECRET_SIGNATURE, env.ACCESS_TOKEN_LIFE)
+    // const accessToken = await JwtProvider.generateToken(userInfo, env.ACCESS_TOKEN_SECRET_SIGNATURE, 5)
     const refreshToken = await JwtProvider.generateToken(userInfo, env.REFRESH_TOKEN_SECRET_SIGNATURE, env.REFRESH_TOKEN_LIFE)
+    // const refreshToken = await JwtProvider.generateToken(userInfo, env.REFRESH_TOKEN_SECRET_SIGNATURE, 60)
 
     return { accessToken, refreshToken, ...pickUser(existUser) }
+  } catch (error) { throw error }
+}
+
+const refreshToken = async (clientRefreshToken) => {
+  try {
+    const refreshTokenDecoded = await JwtProvider.verifyToken(clientRefreshToken, env.REFRESH_TOKEN_SECRET_SIGNATURE)
+    const userInfo = {
+      _id: refreshTokenDecoded._id,
+      email: refreshTokenDecoded.email
+    }
+
+    const accessToken = await JwtProvider.generateToken(userInfo, env.ACCESS_TOKEN_SECRET_SIGNATURE, env.ACCESS_TOKEN_LIFE)
+    // const accessToken = await JwtProvider.generateToken(userInfo, env.ACCESS_TOKEN_SECRET_SIGNATURE, 5)
+
+    return { accessToken }
+  } catch (error) { throw error }
+}
+
+const update = async (userId, reqBody, avatarFile) => {
+  try {
+    const existUser = await userModel.findOneById(userId)
+    if (!existUser) throw new ApiError(StatusCodes.NOT_FOUND, 'Account not found!')
+    if (!existUser.isActive) throw new ApiError(StatusCodes.NOT_ACCEPTABLE, 'Your account is not active yet!')
+    let updateUser = {}
+    if (reqBody.current_password && reqBody.new_password) {
+      if (!bcryptjs.compareSync(reqBody.current_password, existUser.password)) throw new ApiError(StatusCodes.NOT_ACCEPTABLE, 'Your current password is incorrect!')
+      updateUser = await userModel.update(existUser._id, {
+        password: bcryptjs.hashSync(reqBody.new_password, 8)
+      })
+    }
+    else if (avatarFile) {
+      //Cloundinary upload
+      const uploadResult = await CloundinaryProvider.streamUpload(avatarFile.buffer, 'users')
+      // console.log('🚀 ~ update ~ uploadResult:', uploadResult)
+      updateUser = await userModel.update(existUser._id, {
+        avatar: uploadResult.secure_url
+      })
+    }
+    else {
+      updateUser = await userModel.update(existUser._id, reqBody)
+    }
+    return pickUser(updateUser)
   } catch (error) { throw error }
 }
 
 export const userService = {
   createNew,
   verifyAccount,
-  login
+  login,
+  refreshToken,
+  update
 }
