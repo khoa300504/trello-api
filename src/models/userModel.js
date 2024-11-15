@@ -14,7 +14,7 @@ const USER_COLLECTION_SCHEMA = Joi.object({
   password: Joi.string().required(),
   username: Joi.string().required().trim().strict(),
   displayName: Joi.string().required().trim().strict(), avatar: Joi.string().default(null),
-  role: Joi.string().valid(USER_ROLES.CLIENT, USER_ROLES.ADMIN).default(USER_ROLES.CLIENT),
+  role: Joi.string().valid(...Object.values(USER_ROLES)).default(USER_ROLES.CLIENT),
 
   isActive: Joi.boolean().default(false),
   verifyToken: Joi.string(),
@@ -49,17 +49,17 @@ const findOneByEmail = async (email) => {
   } catch (error) {throw new Error(error)}
 }
 
-const update = async (userId, updatedData) => {
+const update = async (userId, updateData) => {
   try {
-    Object.keys(updatedData).forEach(fieldName => {
+    Object.keys(updateData).forEach(fieldName => {
       if (INVALID_UPDATE_FIELDS.includes(fieldName)) {
-        delete updatedData[fieldName]
+        delete updateData[fieldName]
       }
     })
 
     const result = await GET_DB().collection(USER_COLLECTION_NAME).findOneAndUpdate(
       { _id: new ObjectId(userId) },
-      { $set: updatedData },
+      { $set: updateData },
       { returnDocument: 'after' }
     )
     return result

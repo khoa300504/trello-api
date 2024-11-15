@@ -4,22 +4,30 @@ import { boardService } from '~/services/boardService'
 
 const CreateNew = async (req, res, next) => {
   try {
-    //req có req.body/quary/params/files/cookie/dwtDecoded....
+    const userId = req.jwtDecoded._id
+    const createdBoard = await boardService.CreateNew(userId, req.body)
 
-    // throw new ApiError(StatusCodes.CONFLICT, 'Test error')
-    //Điều hướng data sang tầng service để XỬ LÝ LOGIC only sau đó hứng solveddata
-    const createdBoard = await boardService.CreateNew(req.body)
-
-    //Có kết quả thì trả về client
     res.status(StatusCodes.CREATED).json(createdBoard)
   } catch (error) { next(error) }
 }
 
 const getDetails = async (req, res, next) => {
   try {
-    const board = await boardService.getDetails(req.params.id)
+    const userId = req.jwtDecoded._id
+    const boardId = req.params.id
+    const board = await boardService.getDetails(userId, boardId)
 
     res.status(StatusCodes.OK).json(board)
+  } catch (error) { next(error) }
+}
+
+const getBoards = async (req, res, next) => {
+  try {
+    const userId = req.jwtDecoded._id
+    const { page, itemsPerPage } = req.query
+    const results = await boardService.getBoards(userId, page, itemsPerPage)
+
+    res.status(StatusCodes.OK).json(results)
   } catch (error) { next(error) }
 }
 
@@ -41,5 +49,6 @@ export const boardController = {
   CreateNew,
   getDetails,
   update,
-  moveCardToDifferentColumn
+  moveCardToDifferentColumn,
+  getBoards
 }

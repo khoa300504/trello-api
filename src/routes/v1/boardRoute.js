@@ -6,6 +6,7 @@ import { authMiddleWare } from '~/middlewares/authMiddleware'
 const Router = express.Router()
 
 Router.route('/')
+  .get(authMiddleWare.isAuthorized, boardController.getBoards)
   .post(authMiddleWare.isAuthorized, boardValidation.CreateNew, boardController.CreateNew)
 
 Router.route('/:id')
