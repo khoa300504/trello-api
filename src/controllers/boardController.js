@@ -2,7 +2,7 @@ import { StatusCodes } from 'http-status-codes'
 import { boardService } from '~/services/boardService'
 // import ApiError from '~/utils/apiError'
 
-const CreateNew = async (req, res, next) => {
+const createNew = async (req, res, next) => {
   try {
     const userId = req.jwtDecoded._id
     const createdBoard = await boardService.CreateNew(userId, req.body)
@@ -24,8 +24,9 @@ const getDetails = async (req, res, next) => {
 const getBoards = async (req, res, next) => {
   try {
     const userId = req.jwtDecoded._id
-    const { page, itemsPerPage } = req.query
-    const results = await boardService.getBoards(userId, page, itemsPerPage)
+    const { page, itemsPerPage, q } = req.query
+    const queryFilters = q
+    const results = await boardService.getBoards(userId, page, itemsPerPage, queryFilters)
 
     res.status(StatusCodes.OK).json(results)
   } catch (error) { next(error) }
@@ -46,7 +47,7 @@ const moveCardToDifferentColumn = async (req, res, next) => {
 }
 
 export const boardController = {
-  CreateNew,
+  createNew,
   getDetails,
   update,
   moveCardToDifferentColumn,

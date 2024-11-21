@@ -11,6 +11,11 @@ Router.route('/board')
     invitationController.createNewBoardInvitaion
   )
 
+Router.route('/board/:invitationId')
+  .put(authMiddleWare.isAuthorized,
+    invitationController.updateBoardInvitation
+  )
+
 Router.route('/')
   .get(authMiddleWare.isAuthorized,
     invitationController.getInvitations

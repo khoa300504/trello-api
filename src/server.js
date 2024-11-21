@@ -7,6 +7,10 @@ import exitHook from 'async-exit-hook'
 import { env } from '~/config/environment'
 import { APIs_V1 } from '~/routes/v1/index'
 import { errorHandlingMiddleware } from '~/middlewares/errorHandlingMiddleware'
+import http from 'http'
+import socketIo from 'socket.io'
+import { inviteUserToBoardSocket } from './sockets/inviteUserToBoardSocket'
+
 var cookieParser = require('cookie-parser')
 
 const START_SERVER = () => {
@@ -32,12 +36,22 @@ const START_SERVER = () => {
   //Middleware sử lí lỗi tập trung
   app.use(errorHandlingMiddleware)
 
+  // tao 1 server boc app express de lam realtime voi socket.io
+  const server = http.createServer(app)
+
+  //Khoi tao io voi server va cors
+  const io = socketIo(server, { cors: corsOptions })
+
+  io.on('connection', (socket) => {
+    inviteUserToBoardSocket(socket)
+  })
+
   if (env.BUILD_MODE === 'production') {
-    app.listen(process.env.PORT || 4000, () => {
+    server.listen(process.env.PORT || 4000, () => {
       console.log(`3. Hi ${env.AUTHOR}, Back-end server is running successfully at PORT: ${process.env.PORT || 4000}`)
     })
   } else {
-    app.listen(env.LOCAL_DEV_APP_PORT, env.LOCAL_DEV_APP_HOST, () => {
+    server.listen(env.LOCAL_DEV_APP_PORT, env.LOCAL_DEV_APP_HOST, () => {
       console.log(`Local Dev: 3. Hi ${env.AUTHOR}, Back-end server is running successfully at Host: ${env.LOCAL_DEV_APP_HOST} and Port: ${env.LOCAL_DEV_APP_PORT}`)
     })
   }

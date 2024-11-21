@@ -2,6 +2,7 @@ import Joi from 'joi'
 import { EMAIL_RULE, EMAIL_RULE_MESSAGE, OBJECT_ID_RULE, OBJECT_ID_RULE_MESSAGE } from '~/utils/validators'
 import { GET_DB } from '~/config/mongodb'
 import { ObjectId } from 'mongodb'
+import { CARD_MEMBER_ACTION } from '~/utils/constants'
 
 // Define Collection (name & schema)
 const CARD_COLLECTION_NAME = 'cards'
@@ -72,6 +73,25 @@ const update = async (cardId, updatedData) => {
   } catch (error) {throw new Error(error)}
 }
 
+const updateMembers = async (cardId, incommingMemberInfo) => {
+  try {
+    let updateCondition = {}
+    if (incommingMemberInfo.action === CARD_MEMBER_ACTION.ADD) {
+      updateCondition = { $push: { memberIds: new ObjectId(incommingMemberInfo.userId) } }
+    }
+    if (incommingMemberInfo.action === CARD_MEMBER_ACTION.REMOVE) {
+      // eslint-disable-next-line no-unused-vars
+      updateCondition = { $pull: { memberIds: new ObjectId(incommingMemberInfo.userId) } }
+    }
+    const result = await GET_DB().collection(CARD_COLLECTION_NAME).findOneAndUpdate(
+      { _id: new ObjectId(cardId) },
+      updateCondition,
+      { returnDocument: 'after' }
+    )
+    return result
+  } catch (error) {throw new Error(error)}
+}
+
 const unShiftNewComment = async (cardId, commentData) => {
   try {
     const result = await GET_DB().collection(CARD_COLLECTION_NAME).findOneAndUpdate(
@@ -97,5 +117,6 @@ export const cardModel = {
   findOneById,
   update,
   deleteManyByColumnId,
-  unShiftNewComment
+  unShiftNewComment,
+  updateMembers
 }

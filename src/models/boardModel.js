@@ -111,6 +111,17 @@ const pushColumnOrderIds = async (column) => {
   } catch (error) {throw new Error(error)}
 }
 
+const pushMemberIds = async (boardId, userId) => {
+  try {
+    const result = await GET_DB().collection(BOARD_COLLECTION_NAME).findOneAndUpdate(
+      { _id: new ObjectId(boardId) },
+      { $push: { memberIds: new ObjectId(userId) } },
+      { returnDocument: 'after' }
+    )
+    return result
+  } catch (error) {throw new Error(error)}
+}
+
 const pullColumnOrderIds = async (column) => {
   try {
     const result = await GET_DB().collection(BOARD_COLLECTION_NAME).findOneAndUpdate(
@@ -143,7 +154,7 @@ const update = async (boardId, updatedData) => {
   } catch (error) {throw new Error(error)}
 }
 
-const getBoards = async (userId, page, itemsPerPage) => {
+const getBoards = async (userId, page, itemsPerPage, queryFilters) => {
   try {
     const queryConditions = [
       { _destroy: false },
@@ -152,6 +163,17 @@ const getBoards = async (userId, page, itemsPerPage) => {
         { memberIds: { $all: [new ObjectId(userId)] } }
       ] }
     ]
+
+    if (queryFilters) {
+      Object.keys(queryFilters).forEach(k => {
+        //Co phan biet chu hoa chu thuong
+        // queryConditions.push({ [k]: { $regex: queryFilters[k] } })
+
+        //Khong phan biet chu hoa chu thuong
+        queryConditions.push({ [k]: { $regex: new RegExp(queryFilters[k], 'i') } })
+      })
+    }
+
     const query = await GET_DB().collection(BOARD_COLLECTION_NAME).aggregate(
       [
         { $match: { $and: queryConditions } },
@@ -186,5 +208,6 @@ export const boardModel = {
   pushColumnOrderIds,
   update,
   pullColumnOrderIds,
-  getBoards
+  getBoards,
+  pushMemberIds
 }

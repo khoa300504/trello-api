@@ -4,7 +4,7 @@ import ApiError from '~/utils/ApiError'
 import { BOARD_TYPES } from '~/utils/constants'
 import { OBJECT_ID_RULE, OBJECT_ID_RULE_MESSAGE } from '~/utils/validators'
 
-const CreateNew = async (req, res, next) => {
+const createNew = async (req, res, next) => {
   const correctCondition = Joi.object({
     title: Joi.string().min(3).max(30).required().trim().strict().messages({
       'any.required': 'Title is required (Khoa Custome)',
@@ -67,7 +67,7 @@ const moveCardToDifferentColumn = async (req, res, next) => {
 }
 
 export const boardValidation = {
-  CreateNew,
+  createNew,
   update,
   moveCardToDifferentColumn
 }
